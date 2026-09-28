@@ -1,26 +1,70 @@
-import type { VercelRequest, VercelResponse } from '../../_vercel'
-import { isSafeId, fetchAnalysisFromSupabase } from '../../_supabase'
+// Self-contained Vercel serverless function with NO relative imports
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+interface JudgmentAnalysis {
+  id: string
+  ratio: string
+  legalPrinciple: string
+  issues: string[]
+  arguments: string[]
+  decision: string
+  importantSections: string[]
+  relatedCases: string[]
+}
+
+function isSafeId(id: string): boolean {
+  return /^[a-z0-9][a-z0-9-_]{0,63}$/i.test(id)
+}
+
+function mapAnalysis(row: any): JudgmentAnalysis {
+  return {
+    id: row.id,
+    ratio: row.ratio,
+    legalPrinciple: row.legal_principle,
+    issues: Array.isArray(row.issues) ? row.issues : [],
+    arguments: Array.isArray(row.arguments) ? row.arguments : [],
+    decision: row.decision,
+    importantSections: Array.isArray(row.important_sections) ? row.important_sections : [],
+    relatedCases: Array.isArray(row.related_cases) ? row.related_cases : [],
+  }
+}
+
+export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'method_not_allowed' })
-    return
+    return res.status(405).json({ error: 'method_not_allowed' })
   }
 
-  const id = typeof req.query.id === 'string' ? req.query.id : undefined
+  const id = typeof req.query?.id === 'string' ? req.query.id : undefined
   if (!id || !isSafeId(id)) {
-    res.status(400).json({ error: 'invalid_id' })
-    return
+    return res.status(400).json({ error: 'invalid_id' })
+  }
+
+  const url = process.env.SUPABASE_URL?.replace(/\/$/, '')
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    return res.status(404).json({ error: 'not_found' })
   }
 
   try {
-    const analysis = await fetchAnalysisFromSupabase(id)
-    if (!analysis) {
-      res.status(404).json({ error: 'not_found' })
-      return
+    const response = await fetch(`${url}/rest/v1/judgment_analysis?id=eq.${encodeURIComponent(id)}&limit=1`, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'supabase_error' })
     }
-    res.status(200).json(analysis)
+
+    const rows: any[] = await response.json()
+    if (!rows.length) {
+      return res.status(404).json({ error: 'not_found' })
+    }
+
+    return res.status(200).json(mapAnalysis(rows[0]))
   } catch (err: any) {
-    res.status(500).json({ error: 'server_error', message: err?.message || String(err) })
+    return res.status(500).json({ error: 'server_error', message: err?.message || String(err) })
   }
 }
