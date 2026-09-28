@@ -1,6 +1,6 @@
-import type { VercelRequest, VercelResponse } from '../../../_vercel'
-import { LocalContentRepository } from '../../../../src/content/LocalContentRepository'
-import { isSafeId } from '../../../../src/content/searchUtils'
+import type { VercelRequest, VercelResponse } from '../../_vercel'
+import { LocalContentRepository } from '../../../src/content/LocalContentRepository'
+import { isSafeId } from '../../../src/content/searchUtils'
 
 const repo = new LocalContentRepository()
 

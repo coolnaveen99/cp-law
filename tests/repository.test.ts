@@ -15,7 +15,7 @@ describe('LocalContentRepository', () => {
   it('loads analysis only for an opened judgment', async () => {
     const analysis = await repo.getJudgmentAnalysis('puttaswamy-2017')
     assert.ok(analysis)
-    assert.match(analysis.ratio, /privacy/i)
+    assert.match(analysis!.ratio, /privacy/i)
   })
 
   it('rejects unsafe ids', async () => {
