@@ -25,6 +25,7 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   background: var(--paper);
   color: var(--ink);
+  line-height: 1.55;
 }
 
 a { color: var(--seal); }
@@ -84,4 +85,43 @@ h1 { font-size: 32px; margin: 24px 0 8px; }
   text-decoration: none;
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
+  color: var(--ink);
+}
+.chip.static { cursor: default; background: transparent; }
+
+.judgment-header { margin-bottom: 16px; }
+.judgment-header h1 { margin-top: 8px; }
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: var(--seal);
+  font-weight: 600;
+}
+.inline-tags { margin-top: 12px; }
+.section { margin-top: 12px; }
+.section h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+.subhead {
+  margin: 12px 0 6px;
+  font-size: 15px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: var(--muted);
+}
+.bullets {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.bullets li { margin-bottom: 6px; }
+.reason-block + .reason-block { margin-top: 12px; }
+.principle { margin-top: 10px; }
+.source-line {
+  margin-top: 20px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--muted);
 }
