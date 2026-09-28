@@ -174,6 +174,15 @@ function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) 
   if (!record) return <p className="lede">Judgment not in the published index.</p>
 
   const tags = analysis?.tags?.length ? analysis.tags : record.keywords
+  const facts = analysis?.facts ?? []
+  const issues = analysis?.issues ?? []
+  const provisions = analysis?.provisions ?? []
+  const appellantArgs = analysis?.appellantArgs ?? []
+  const respondentArgs = analysis?.respondentArgs ?? []
+  const generalArgs = analysis?.arguments ?? []
+  const reasoning = analysis?.reasoning ?? []
+  const examPoints = analysis?.examPoints ?? []
+  const relatedCases = analysis?.relatedCases ?? []
 
   return (
     <>
@@ -214,22 +223,22 @@ function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) 
         <p>{record.shortSummary}</p>
       </Section>
 
-      {analysis?.facts?.length > 0 && (
+      {facts.length > 0 && (
         <Section title="Material Facts">
-          <BulletList items={analysis.facts} />
+          <BulletList items={facts} />
         </Section>
       )}
 
-      {analysis?.issues?.length > 0 && (
+      {issues.length > 0 && (
         <Section title="Legal Issues">
-          <BulletList items={analysis.issues} />
+          <BulletList items={issues} />
         </Section>
       )}
 
-      {analysis?.provisions?.length > 0 && (
+      {provisions.length > 0 && (
         <Section title="Provisions">
           <ul className="bullets">
-            {analysis.provisions.map((p, index) => (
+            {provisions.map((p, index) => (
               <li key={index}>
                 <strong>
                   {[p.article, p.section].filter(Boolean).join(' / ') || p.provisionId || 'Provision'}
@@ -242,31 +251,29 @@ function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) 
         </Section>
       )}
 
-      {(analysis?.appellantArgs?.length > 0 ||
-        analysis?.respondentArgs?.length > 0 ||
-        analysis?.arguments?.length > 0) && (
+      {(appellantArgs.length > 0 || respondentArgs.length > 0 || generalArgs.length > 0) && (
         <Section title="Arguments">
-          {analysis.appellantArgs?.length > 0 && (
+          {appellantArgs.length > 0 && (
             <>
               <h3 className="subhead">Appellant / Petitioner</h3>
-              <BulletList items={analysis.appellantArgs} />
+              <BulletList items={appellantArgs} />
             </>
           )}
-          {analysis.respondentArgs?.length > 0 && (
+          {respondentArgs.length > 0 && (
             <>
               <h3 className="subhead">Respondent</h3>
-              <BulletList items={analysis.respondentArgs} />
+              <BulletList items={respondentArgs} />
             </>
           )}
-          {!analysis.appellantArgs?.length &&
-            !analysis.respondentArgs?.length &&
-            analysis.arguments?.length > 0 && <BulletList items={analysis.arguments} />}
+          {!appellantArgs.length && !respondentArgs.length && generalArgs.length > 0 && (
+            <BulletList items={generalArgs} />
+          )}
         </Section>
       )}
 
-      {analysis?.reasoning?.length > 0 && (
+      {reasoning.length > 0 && (
         <Section title="Court's Reasoning">
-          {analysis.reasoning.map((block, index) => (
+          {reasoning.map((block, index) => (
             <div key={index} className="reason-block">
               {block.heading && <h3 className="subhead">{block.heading}</h3>}
               <p>{block.explanation}</p>
@@ -275,42 +282,42 @@ function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) 
         </Section>
       )}
 
-      {(analysis?.decision || analysis?.holding || analysis?.ratio) && (
+      {Boolean(analysis?.decision || analysis?.holding || analysis?.ratio) && (
         <Section title="Decision & Ratio">
-          {analysis.holding && (
+          {analysis?.holding && (
             <>
               <h3 className="subhead">Holding</h3>
               <p>{analysis.holding}</p>
             </>
           )}
-          {analysis.decision && (
+          {analysis?.decision && (
             <>
               <h3 className="subhead">Decision</h3>
               <p>{analysis.decision}</p>
             </>
           )}
-          {analysis.ratio && (
+          {analysis?.ratio && (
             <>
               <h3 className="subhead">Ratio Decidendi</h3>
               <p>{analysis.ratio}</p>
             </>
           )}
-          {analysis.legalPrinciple && (
+          {analysis?.legalPrinciple && (
             <p className="meta principle">{analysis.legalPrinciple}</p>
           )}
         </Section>
       )}
 
-      {analysis?.examPoints?.length > 0 && (
+      {examPoints.length > 0 && (
         <Section title="Exam Points">
-          <BulletList items={analysis.examPoints} />
+          <BulletList items={examPoints} />
         </Section>
       )}
 
-      {analysis?.relatedCases?.length > 0 && (
+      {relatedCases.length > 0 && (
         <Section title="Related Cases">
           <div className="topics">
-            {analysis.relatedCases.map((caseId) => (
+            {relatedCases.map((caseId) => (
               <a
                 key={caseId}
                 className="chip"
