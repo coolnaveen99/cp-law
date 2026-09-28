@@ -81,6 +81,48 @@ export const FIXTURE_ANALYSIS: Record<string, JudgmentAnalysis> = {
       'By majority, Parliament may amend the Constitution but cannot abrogate its basic structure.',
     importantSections: ['ARTICLE:CONSTITUTION:ARTICLE-368'],
     relatedCases: ['minerva-mills-1980', 'i-r-coelho-2007'],
+    facts: [
+      'Kesavananda Bharati challenged Kerala land reform laws and successive constitutional amendments.',
+      'The 24th Amendment asserted plenary amending power after Golaknath.',
+    ],
+    holding:
+      'Parliament may amend any part of the Constitution, including fundamental rights, but cannot damage or destroy its basic structure.',
+    reasoning: [
+      {
+        heading: 'Basic structure limitation',
+        explanation:
+          'Amendment contemplates change that preserves constitutional identity; it does not authorise rewriting the Constitution into a new instrument.',
+      },
+      {
+        heading: 'Judicial review of amendments',
+        explanation:
+          'Amendments that destroy essential features are open to judicial review and invalidation.',
+      },
+    ],
+    provisions: [
+      {
+        actName: 'Constitution of India',
+        article: 'Article 368',
+        title: 'Power of Parliament to amend the Constitution',
+        provisionId: 'art-368',
+      },
+      {
+        actName: 'Constitution of India',
+        article: 'Article 13',
+        title: 'Laws inconsistent with fundamental rights',
+        provisionId: 'art-13',
+      },
+    ],
+    examPoints: [
+      '7:6 majority; origin of basic structure doctrine.',
+      'Overruled Golaknath on total bar to amending fundamental rights.',
+    ],
+    bench: '13-Judge Constitution Bench',
+    judges: [],
+    subject: 'Constitution',
+    tags: ['basic structure', 'amendment', 'AIBE', 'Judiciary'],
+    appellantArgs: ['Amendment cannot destroy essential features of the Constitution.'],
+    respondentArgs: ['Article 368 confers plenary constituent power.'],
   },
   'maneka-gandhi-1978': {
     id: 'maneka-gandhi-1978',
@@ -96,6 +138,37 @@ export const FIXTURE_ANALYSIS: Record<string, JudgmentAnalysis> = {
       'Passport Act procedure must satisfy fairness. Articles 14, 19 and 21 form a golden triangle.',
     importantSections: ['ARTICLE:CONSTITUTION:ARTICLE-21', 'ARTICLE:CONSTITUTION:ARTICLE-14'],
     relatedCases: ['a-k-gopalan-1950', 'puttaswamy-2017'],
+    facts: [
+      'The petitioner’s passport was impounded without prior hearing under the Passport Act.',
+      'She challenged the action as violating personal liberty under Article 21.',
+    ],
+    holding:
+      'Procedure under Article 21 must be fair, just and reasonable; Articles 14, 19 and 21 are read together.',
+    reasoning: [
+      {
+        heading: 'Golden triangle',
+        explanation:
+          'Articles 14, 19 and 21 form an integrated code; a law must satisfy all three where personal liberty is restricted.',
+      },
+    ],
+    provisions: [
+      {
+        actName: 'Constitution of India',
+        article: 'Article 21',
+        title: 'Protection of life and personal liberty',
+        provisionId: 'art-21',
+      },
+    ],
+    examPoints: [
+      'Overthrew narrow A.K. Gopalan reading of Article 21.',
+      'Fairness is part of “procedure established by law”.',
+    ],
+    bench: '7-Judge Bench',
+    judges: [],
+    subject: 'Constitution',
+    tags: ['article 21', 'due process', 'passport'],
+    appellantArgs: ['Personal liberty includes the right to travel; hearing is required.'],
+    respondentArgs: ['Article 21 requires only a procedure laid down by statute.'],
   },
   'puttaswamy-2017': {
     id: 'puttaswamy-2017',
@@ -110,5 +183,36 @@ export const FIXTURE_ANALYSIS: Record<string, JudgmentAnalysis> = {
       'Nine-judge bench held that privacy is a fundamental right. M.P. Sharma and Kharak Singh were overruled on this point.',
     importantSections: ['ARTICLE:CONSTITUTION:ARTICLE-21'],
     relatedCases: ['maneka-gandhi-1978', 'kharak-singh-1964'],
+    facts: [
+      'Challenges to Aadhaar and related state actions raised whether privacy is a fundamental right.',
+      'A nine-judge bench was constituted to settle conflicting precedent.',
+    ],
+    holding:
+      'The right to privacy is a fundamental right protected by Articles 14, 19 and 21.',
+    reasoning: [
+      {
+        heading: 'Privacy and dignity',
+        explanation:
+          'Privacy is intrinsic to dignity and personal liberty; it is not exhausted by the absence of an express textual clause.',
+      },
+    ],
+    provisions: [
+      {
+        actName: 'Constitution of India',
+        article: 'Article 21',
+        title: 'Protection of life and personal liberty',
+        provisionId: 'art-21',
+      },
+    ],
+    examPoints: [
+      'Nine-judge bench; privacy is fundamental.',
+      'Overruled contrary observations in M.P. Sharma and Kharak Singh.',
+    ],
+    bench: '9-Judge Bench',
+    judges: [],
+    subject: 'Constitution',
+    tags: ['privacy', 'article 21', 'aadhaar'],
+    appellantArgs: ['Privacy is inherent in dignity and liberty under Part III.'],
+    respondentArgs: ['No express privacy guarantee; earlier benches declined recognition.'],
   },
 }
