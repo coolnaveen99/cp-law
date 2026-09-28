@@ -1,30 +1,59 @@
 // Self-contained Vercel serverless function with NO relative imports
 
-interface JudgmentAnalysis {
-  id: string
-  ratio: string
-  legalPrinciple: string
-  issues: string[]
-  arguments: string[]
-  decision: string
-  importantSections: string[]
-  relatedCases: string[]
-}
-
 function isSafeId(id: string): boolean {
   return /^[a-z0-9][a-z0-9-_]{0,63}$/i.test(id)
 }
 
-function mapAnalysis(row: any): JudgmentAnalysis {
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.map(String) : []
+}
+
+function asReasoning(value: unknown): { heading: string; explanation: string }[] {
+  if (!Array.isArray(value)) return []
+  return value.map((item) => ({
+    heading: String((item as any)?.heading || ''),
+    explanation: String((item as any)?.explanation || ''),
+  }))
+}
+
+function asProvisions(value: unknown): {
+  actName?: string
+  article?: string
+  section?: string
+  title?: string
+  provisionId?: string
+}[] {
+  if (!Array.isArray(value)) return []
+  return value.map((item) => ({
+    actName: (item as any)?.actName || (item as any)?.act_name || undefined,
+    article: (item as any)?.article || undefined,
+    section: (item as any)?.section || undefined,
+    title: (item as any)?.title || undefined,
+    provisionId: (item as any)?.provisionId || (item as any)?.provision_id || undefined,
+  }))
+}
+
+function mapAnalysis(row: any) {
   return {
     id: row.id,
-    ratio: row.ratio,
-    legalPrinciple: row.legal_principle,
-    issues: Array.isArray(row.issues) ? row.issues : [],
-    arguments: Array.isArray(row.arguments) ? row.arguments : [],
-    decision: row.decision,
-    importantSections: Array.isArray(row.important_sections) ? row.important_sections : [],
-    relatedCases: Array.isArray(row.related_cases) ? row.related_cases : [],
+    ratio: row.ratio || '',
+    legalPrinciple: row.legal_principle || '',
+    issues: asStringArray(row.issues),
+    arguments: asStringArray(row.arguments),
+    decision: row.decision || '',
+    importantSections: asStringArray(row.important_sections),
+    relatedCases: asStringArray(row.related_cases),
+    facts: asStringArray(row.facts),
+    holding: row.holding || '',
+    reasoning: asReasoning(row.reasoning),
+    provisions: asProvisions(row.provisions),
+    examPoints: asStringArray(row.exam_points),
+    bench: row.bench || undefined,
+    judges: asStringArray(row.judges),
+    subject: row.subject || undefined,
+    tags: asStringArray(row.tags),
+    appellantArgs: asStringArray(row.appellant_args),
+    respondentArgs: asStringArray(row.respondent_args),
   }
 }
 
@@ -50,13 +79,16 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch(`${url}/rest/v1/judgment_analysis?id=eq.${encodeURIComponent(id)}&limit=1`, {
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        Accept: 'application/json',
+    const response = await fetch(
+      `${url}/rest/v1/judgment_analysis?id=eq.${encodeURIComponent(id)}&limit=1`,
+      {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          Accept: 'application/json',
+        },
       },
-    })
+    )
 
     if (!response.ok) {
       return res.status(response.status).json({ error: 'supabase_error' })
