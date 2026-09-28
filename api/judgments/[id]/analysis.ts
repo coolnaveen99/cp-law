@@ -38,8 +38,12 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'invalid_id' })
   }
 
-  const url = process.env.SUPABASE_URL?.replace(/\/$/, '')
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL)?.replace(/\/$/, '')
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY
 
   if (!url || !key) {
     return res.status(404).json({ error: 'not_found' })

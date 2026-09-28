@@ -56,11 +56,22 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'method_not_allowed' })
   }
 
-  const url = process.env.SUPABASE_URL?.replace(/\/$/, '')
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const url = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL)?.replace(/\/$/, '')
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.VITE_SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.VITE_SUPABASE_ANON_KEY
 
   if (!url || !key) {
-    return res.status(200).json({ items: [], total: 0, offset: 0, limit: 20, warning: 'supabase_not_configured' })
+    return res.status(200).json({
+      items: [],
+      total: 0,
+      offset: 0,
+      limit: 20,
+      warning: 'supabase_not_configured',
+      missing: [!url ? 'SUPABASE_URL' : null, !key ? 'SUPABASE_SERVICE_ROLE_KEY' : null].filter(Boolean),
+    })
   }
 
   try {
