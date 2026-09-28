@@ -75,7 +75,7 @@ function Home({ q, go }: { q: string; go: (search: string) => void }) {
       <h1>Codepackr Law — AS-2</h1>
       <p className="lede">
         Search the compact index. Full analysis loads only when a case is opened.
-        Fixtures only — no live corpus in Git.
+        Corpus lives outside Git.
       </p>
       <form
         className="search"
@@ -97,10 +97,13 @@ function Home({ q, go }: { q: string; go: (search: string) => void }) {
         {items.map((item) => (
           <article key={item.id} className="card">
             <h2>
-              <a href={`/?judgment=${item.id}`} onClick={(event) => {
-                event.preventDefault()
-                go(`judgment=${item.id}`)
-              }}>
+              <a
+                href={`/?judgment=${item.id}`}
+                onClick={(event) => {
+                  event.preventDefault()
+                  go(`judgment=${item.id}`)
+                }}
+              >
                 {item.caseName}
               </a>
             </h2>
@@ -130,6 +133,26 @@ function Home({ q, go }: { q: string; go: (search: string) => void }) {
   )
 }
 
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="card section">
+      <h2>{title}</h2>
+      {children}
+    </section>
+  )
+}
+
+function BulletList({ items }: { items: string[] }) {
+  if (!items.length) return null
+  return (
+    <ul className="bullets">
+      {items.map((item, index) => (
+        <li key={`${index}-${item.slice(0, 24)}`}>{item}</li>
+      ))}
+    </ul>
+  )
+}
+
 function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) {
   const [record, setRecord] = useState<JudgmentIndexRecord | null | undefined>(undefined)
   const [analysis, setAnalysis] = useState<JudgmentAnalysis | null>(null)
@@ -150,26 +173,166 @@ function JudgmentPage({ id, go }: { id: string; go: (search: string) => void }) 
   if (record === undefined) return <p className="lede">Loading index…</p>
   if (!record) return <p className="lede">Judgment not in the published index.</p>
 
+  const tags = analysis?.tags?.length ? analysis.tags : record.keywords
+
   return (
     <>
-      <a className="back" href="/" onClick={(event) => { event.preventDefault(); go('') }}>
+      <a
+        className="back"
+        href="/"
+        onClick={(event) => {
+          event.preventDefault()
+          go('')
+        }}
+      >
         ← Index
       </a>
-      <h1>{record.caseName}</h1>
-      <p className="meta">
-        {record.citation} · {record.court} · {record.date}
-      </p>
-      <p>{record.shortSummary}</p>
-      {analysis && (
-        <section className="card ratio">
-          <h2>Ratio</h2>
-          <p>{analysis.ratio}</p>
-          <p className="meta">{analysis.legalPrinciple}</p>
-          <p>{analysis.decision}</p>
-        </section>
+
+      <div className="judgment-header card">
+        {(analysis?.subject || analysis?.bench) && (
+          <p className="eyebrow">
+            {[analysis?.subject, record.year, analysis?.bench].filter(Boolean).join(' · ')}
+          </p>
+        )}
+        <h1>{record.caseName}</h1>
+        <p className="meta">
+          {record.citation} · {record.court}
+          {record.date ? ` · ${record.date}` : ''}
+        </p>
+        {tags.length > 0 && (
+          <div className="topics inline-tags">
+            {tags.map((tag) => (
+              <span key={tag} className="chip static">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Section title="Case Overview">
+        <p>{record.shortSummary}</p>
+      </Section>
+
+      {analysis?.facts?.length > 0 && (
+        <Section title="Material Facts">
+          <BulletList items={analysis.facts} />
+        </Section>
       )}
+
+      {analysis?.issues?.length > 0 && (
+        <Section title="Legal Issues">
+          <BulletList items={analysis.issues} />
+        </Section>
+      )}
+
+      {analysis?.provisions?.length > 0 && (
+        <Section title="Provisions">
+          <ul className="bullets">
+            {analysis.provisions.map((p, index) => (
+              <li key={index}>
+                <strong>
+                  {[p.article, p.section].filter(Boolean).join(' / ') || p.provisionId || 'Provision'}
+                </strong>
+                {p.actName ? ` — ${p.actName}` : ''}
+                {p.title ? `: ${p.title}` : ''}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {(analysis?.appellantArgs?.length > 0 ||
+        analysis?.respondentArgs?.length > 0 ||
+        analysis?.arguments?.length > 0) && (
+        <Section title="Arguments">
+          {analysis.appellantArgs?.length > 0 && (
+            <>
+              <h3 className="subhead">Appellant / Petitioner</h3>
+              <BulletList items={analysis.appellantArgs} />
+            </>
+          )}
+          {analysis.respondentArgs?.length > 0 && (
+            <>
+              <h3 className="subhead">Respondent</h3>
+              <BulletList items={analysis.respondentArgs} />
+            </>
+          )}
+          {!analysis.appellantArgs?.length &&
+            !analysis.respondentArgs?.length &&
+            analysis.arguments?.length > 0 && <BulletList items={analysis.arguments} />}
+        </Section>
+      )}
+
+      {analysis?.reasoning?.length > 0 && (
+        <Section title="Court's Reasoning">
+          {analysis.reasoning.map((block, index) => (
+            <div key={index} className="reason-block">
+              {block.heading && <h3 className="subhead">{block.heading}</h3>}
+              <p>{block.explanation}</p>
+            </div>
+          ))}
+        </Section>
+      )}
+
+      {(analysis?.decision || analysis?.holding || analysis?.ratio) && (
+        <Section title="Decision & Ratio">
+          {analysis.holding && (
+            <>
+              <h3 className="subhead">Holding</h3>
+              <p>{analysis.holding}</p>
+            </>
+          )}
+          {analysis.decision && (
+            <>
+              <h3 className="subhead">Decision</h3>
+              <p>{analysis.decision}</p>
+            </>
+          )}
+          {analysis.ratio && (
+            <>
+              <h3 className="subhead">Ratio Decidendi</h3>
+              <p>{analysis.ratio}</p>
+            </>
+          )}
+          {analysis.legalPrinciple && (
+            <p className="meta principle">{analysis.legalPrinciple}</p>
+          )}
+        </Section>
+      )}
+
+      {analysis?.examPoints?.length > 0 && (
+        <Section title="Exam Points">
+          <BulletList items={analysis.examPoints} />
+        </Section>
+      )}
+
+      {analysis?.relatedCases?.length > 0 && (
+        <Section title="Related Cases">
+          <div className="topics">
+            {analysis.relatedCases.map((caseId) => (
+              <a
+                key={caseId}
+                className="chip"
+                href={`/?judgment=${caseId}`}
+                onClick={(event) => {
+                  event.preventDefault()
+                  go(`judgment=${caseId}`)
+                }}
+              >
+                {caseId}
+              </a>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {!analysis && record.analysisAvailable && (
+        <p className="lede">Analysis flagged available but not loaded.</p>
+      )}
+
       {record.sourceUrl && (
-        <p>
+        <p className="source-line">
           Official / public source:{' '}
           <a href={record.sourceUrl} target="_blank" rel="noreferrer">
             {record.sourceReference}
@@ -210,7 +373,14 @@ function TopicPage({ id, go }: { id: string; go: (search: string) => void }) {
 
   return (
     <>
-      <a className="back" href="/" onClick={(event) => { event.preventDefault(); go('') }}>
+      <a
+        className="back"
+        href="/"
+        onClick={(event) => {
+          event.preventDefault()
+          go('')
+        }}
+      >
         ← Index
       </a>
       <h1>{topic.title}</h1>
@@ -220,10 +390,13 @@ function TopicPage({ id, go }: { id: string; go: (search: string) => void }) {
         {cases.map((item) => (
           <article key={item.id} className="card">
             <h2>
-              <a href={`/?judgment=${item.id}`} onClick={(event) => {
-                event.preventDefault()
-                go(`judgment=${item.id}`)
-              }}>
+              <a
+                href={`/?judgment=${item.id}`}
+                onClick={(event) => {
+                  event.preventDefault()
+                  go(`judgment=${item.id}`)
+                }}
+              >
                 {item.caseName}
               </a>
             </h2>
