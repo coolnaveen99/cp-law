@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from './_vercel'
-import { LocalContentRepository } from '../src/content/LocalContentRepository'
 import { isSafeId } from '../src/content/searchUtils'
+import { getServerRepository } from '../src/content/serverRepository'
 
-const repo = new LocalContentRepository()
+const repo = getServerRepository()
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
