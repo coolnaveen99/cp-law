@@ -71,18 +71,61 @@ npm run lint
 npm run build
 ```
 
-## Remote mode (optional)
+## Remote mode (Supabase)
 
-1. Create a free Supabase project.
-2. Run `database/migrations/001_init.sql`.
-3. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` on Vercel.
-4. Set `VITE_CONTENT_BACKEND=remote` for the frontend.
+1. Create a Supabase project.
+2. Run migrations:
+   - `database/migrations/001_init.sql` (initial schema & full-text search)
+   - `database/migrations/002_judgment_depth.sql` (Level-2 brief analysis fields)
+3. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` (and on Vercel).
+4. Set `VITE_CONTENT_BACKEND=remote` for the frontend to query Supabase via the API gateway.
 
-Do not commit credentials.
+---
+
+## Linking with `codepackr-law` & Removing Dumps
+
+To connect your main learning frontend (`codepackr-law`) to this backend and safely purge the ~18 monolithic batch files (`famous-landmarks-batch-*.ts`):
+
+👉 **Read the step-by-step guide**: [`docs/codepackr-law-migration.md`](./docs/codepackr-law-migration.md)
+
+Includes drop-in adapter client code, terminal cleanup commands, and verification checklist.
+
+---
+
+## Adding Future Judgments
+
+To add new judgments without bloating Git:
+
+👉 **Read the guide**: [`docs/adding-judgments.md`](./docs/adding-judgments.md)
+
+### Quick Commands:
+```bash
+# 1. Initialize a new case template:
+npm run case:init shreya-singhal-2015
+
+# 2. Edit staging/shreya-singhal-2015.json
+
+# 3. Validate & dry-run:
+npm run staging:dry
+
+# 4. Ingest and publish to Supabase:
+npm run staging:ingest
+```
+
+Staging files are gitignored (`staging/`) so Git stays lean.
+
+---
+
+## AI Agents & Copilot Instructions
+
+- **Copilot Instructions**: [`.github/copilot-instructions.md`](./.github/copilot-instructions.md)
+- **Law Curator Agent**: [`.github/agents/law-curator.md`](./.github/agents/law-curator.md)
+
+---
 
 ## What we will not do
 
-- Touch `coolnaveen99/codepackr-law`
+- Touch `coolnaveen99/codepackr-law` directly from automated scripts
 - Import the live topic/judgment corpus into this Git repo
 - Put `DATABASE_URL` or service keys in source
 - Expose an unrestricted export endpoint

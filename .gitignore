@@ -10,3 +10,5 @@ dist
 coverage
 .idea
 .vscode
+staging/
+*.local.json

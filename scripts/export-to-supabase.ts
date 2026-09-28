@@ -184,6 +184,14 @@ type TopicRow = {
   status: string
 }
 
+function dedupeBy<T>(items: T[], key: keyof T): T[] {
+  const map = new Map<any, T>()
+  for (const item of items) {
+    map.set(item[key], item)
+  }
+  return Array.from(map.values())
+}
+
 async function upsert(
   baseUrl: string,
   key: string,
@@ -192,30 +200,36 @@ async function upsert(
   onConflict: string,
   dryRun: boolean,
 ) {
-  if (!rows.length) return { table, count: 0 }
+  const uniqueRows = dedupeBy(rows, onConflict as any)
+  if (!uniqueRows.length) return { table, count: 0 }
   if (dryRun) {
-    console.log(`[dry-run] would upsert ${rows.length} row(s) into ${table}`)
-    return { table, count: rows.length }
+    console.log(`[dry-run] would upsert ${uniqueRows.length} row(s) into ${table}`)
+    return { table, count: uniqueRows.length }
   }
 
+  const chunkSize = 100
   const url = `${baseUrl.replace(/\/$/, '')}/rest/v1/${table}?on_conflict=${encodeURIComponent(onConflict)}`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=merge-duplicates,return=minimal',
-    },
-    body: JSON.stringify(rows),
-  })
+  for (let i = 0; i < uniqueRows.length; i += chunkSize) {
+    const chunk = uniqueRows.slice(i, i + chunkSize)
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify(chunk),
+    })
 
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`${table} upsert failed (${res.status}): ${body.slice(0, 500)}`)
+    if (!res.ok) {
+      const body = await res.text()
+      throw new Error(`${table} upsert failed (${res.status}): ${body.slice(0, 500)}`)
+    }
   }
-  console.log(`upserted ${rows.length} row(s) → ${table}`)
-  return { table, count: rows.length }
+
+  console.log(`upserted ${uniqueRows.length} row(s) → ${table}`)
+  return { table, count: uniqueRows.length }
 }
 
 function analysisFromFixture(a: any): AnalysisRow {

@@ -12,7 +12,11 @@
     "test": "tsx --test tests/repository.test.ts",
     "export:fixtures": "tsx scripts/export-to-supabase.ts --from fixtures --publish",
     "export:law": "tsx scripts/export-to-supabase.ts --from codepackr-law --publish",
-    "export:law:dry": "tsx scripts/export-to-supabase.ts --from codepackr-law --dry-run"
+    "export:law:dry": "tsx scripts/export-to-supabase.ts --from codepackr-law --dry-run",
+    "case:init": "tsx scripts/ingest-case.ts --init",
+    "case:ingest": "tsx scripts/ingest-case.ts --file",
+    "staging:ingest": "tsx scripts/ingest-case.ts --dir staging --publish",
+    "staging:dry": "tsx scripts/ingest-case.ts --dir staging --dry-run"
   },
   "dependencies": {
     "react": "^18.3.1",

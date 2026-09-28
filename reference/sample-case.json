@@ -1,0 +1,89 @@
+{
+  "id": "shreya-singhal-2015",
+  "caseName": "Shreya Singhal v. Union of India",
+  "court": "Supreme Court of India",
+  "year": 2015,
+  "judgmentDate": "2015-03-24",
+  "citation": "(2015) 5 SCC 1",
+  "neutralCitation": "2015 INSC 244",
+  "topics": [
+    "constitutional-law",
+    "freedom-of-speech",
+    "information-technology-act",
+    "fundamental-rights"
+  ],
+  "provisions": [
+    {
+      "actName": "Constitution of India",
+      "article": "19(1)(a)",
+      "title": "Freedom of Speech and Expression"
+    },
+    {
+      "actName": "Constitution of India",
+      "article": "19(2)",
+      "title": "Reasonable Restrictions on Freedom of Speech"
+    },
+    {
+      "actName": "Information Technology Act, 2000",
+      "section": "66A",
+      "title": "Punishment for sending offensive messages through communication service"
+    }
+  ],
+  "keywords": [
+    "section 66a",
+    "free speech",
+    "chilling effect",
+    "vagueness",
+    "overbreadth"
+  ],
+  "summary": "Landmark ruling striking down Section 66A of the Information Technology Act, 2000 as unconstitutional for violating the fundamental right to freedom of speech and expression under Article 19(1)(a).",
+  "ratioDecidendi": "A statutory penal provision that criminalizes online speech without clear, proximate nexus to public order, incitement to an offence, or other protected heads under Article 19(2) is unconstitutionally vague and overbroad. Clear distinction exists between discussion, advocacy, and incitement.",
+  "holding": "Section 66A of the IT Act, 2000 is struck down in its entirety as violative of Article 19(1)(a) and not saved by Article 19(2).",
+  "facts": [
+    "Section 66A of the Information Technology Act criminalized sending 'grossly offensive' or 'menacing' information through computer resources.",
+    "Multiple citizens, including two college students in Maharashtra, were arrested for expressing political views and dissent on social media.",
+    "A public interest litigation was filed by law student Shreya Singhal challenging the constitutional validity of Section 66A."
+  ],
+  "issues": [
+    "Whether Section 66A of the IT Act violates Article 19(1)(a) of the Constitution.",
+    "Whether the restrictions under Section 66A are saved by Article 19(2) on grounds of public order, decency, or morality.",
+    "Whether Section 66A is void for vagueness and creates an impermissible chilling effect on speech."
+  ],
+  "arguments": {
+    "appellant": [
+      "Section 66A lacks precise definition and criminalizes innocent speech, advocacy, and legitimate political debate.",
+      "The terms 'grossly offensive' and 'annoyance' are not recognized heads of restriction under Article 19(2)."
+    ],
+    "respondent": [
+      "The State argued that the internet is a pervasive medium requiring distinct standards of regulation.",
+      "The State assured the court that the provision would be administered reasonably and not abused."
+    ]
+  },
+  "decision": "Section 66A declared unconstitutional; Section 79(3)(b) read down to require a court order or government notification for intermediary safe-harbor takedowns.",
+  "reasoning": [
+    {
+      "heading": "Discussion vs. Advocacy vs. Incitement",
+      "explanation": "Mere discussion or advocacy of an unpopular cause cannot be restricted; speech can only be curtailed when it reaches the threshold of incitement."
+    },
+    {
+      "heading": "Doctrine of Vagueness & Overbreadth",
+      "explanation": "Section 66A failed to provide an ascertainable standard of guilt, leaving citizens to guess at its meaning and chilling free discourse."
+    },
+    {
+      "heading": "Rejection of Assurance of Benign Administration",
+      "explanation": "Governments come and go, but a vague law remains on the statute book. The possibility of abuse cannot save an intrinsically unconstitutional statute."
+    }
+  ],
+  "examPoints": [
+    "Primary authority on digital free speech and Internet censorship in India.",
+    "Classic formulation of the tripartite test: Discussion, Advocacy, and Incitement.",
+    "Read down Section 79 intermediary guidelines, establishing notice-and-takedown requires judicial or governmental order."
+  ],
+  "bench": "2-Judge Bench",
+  "judges": [
+    "Justice J. Chelameswar",
+    "Justice Rohinton Fali Nariman"
+  ],
+  "subject": "Constitutional Law & Cyber Law",
+  "status": "published"
+}
