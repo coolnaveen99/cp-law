@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '../../_vercel'
-import { isSafeId } from '../../../src/content/searchUtils'
-import { getServerRepository } from '../../../src/content/serverRepository'
+import { isSafeId, fetchAnalysisFromSupabase } from '../../_supabase'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -8,16 +7,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
-  const repo = getServerRepository()
+  const id = typeof req.query.id === 'string' ? req.query.id : undefined
+  if (!id || !isSafeId(id)) {
+    res.status(400).json({ error: 'invalid_id' })
+    return
+  }
 
   try {
-    const id = typeof req.query.id === 'string' ? req.query.id : ''
-    if (!isSafeId(id)) {
-      res.status(400).json({ error: 'invalid_id' })
-      return
-    }
-
-    const analysis = await repo.getJudgmentAnalysis(id)
+    const analysis = await fetchAnalysisFromSupabase(id)
     if (!analysis) {
       res.status(404).json({ error: 'not_found' })
       return
