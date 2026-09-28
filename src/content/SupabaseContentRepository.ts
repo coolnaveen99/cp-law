@@ -72,7 +72,7 @@ export class SupabaseContentRepository implements ContentRepository {
     }
 
     const data = (await res.json()) as any[]
-    const items = data.map(this.mapJudgment)
+    const items = data.map((row) => this.mapJudgment(row))
     if (!contentRange) {
       total = items.length
     }
@@ -127,7 +127,7 @@ export class SupabaseContentRepository implements ContentRepository {
     if (!res.ok) return []
 
     const data = (await res.json()) as any[]
-    return data.map(this.mapTopic)
+    return data.map((row) => this.mapTopic(row))
   }
 
   async getTopic(id: string): Promise<TopicIndexRecord | null> {
