@@ -3,6 +3,8 @@ import { isSafeId } from './searchUtils'
 import type {
   JudgmentAnalysis,
   JudgmentIndexRecord,
+  JudgmentProvisionRef,
+  JudgmentReasoningBlock,
   SearchQuery,
   SearchResult,
   TopicIndexRecord,
@@ -105,18 +107,7 @@ export class SupabaseContentRepository implements ContentRepository {
 
     const data = (await res.json()) as any[]
     if (!data.length) return null
-
-    const row = data[0]
-    return {
-      id: row.id,
-      ratio: row.ratio,
-      legalPrinciple: row.legal_principle,
-      issues: row.issues || [],
-      arguments: row.arguments || [],
-      decision: row.decision,
-      importantSections: row.important_sections || [],
-      relatedCases: row.related_cases || [],
-    }
+    return this.mapAnalysis(data[0])
   }
 
   async listTopics(): Promise<TopicIndexRecord[]> {
@@ -164,6 +155,47 @@ export class SupabaseContentRepository implements ContentRepository {
       analysisAvailable: Boolean(row.analysis_available),
       status: row.status,
       checksum: row.checksum || undefined,
+    }
+  }
+
+  private mapAnalysis(row: any): JudgmentAnalysis {
+    const reasoning: JudgmentReasoningBlock[] = Array.isArray(row.reasoning)
+      ? row.reasoning.map((item: any) => ({
+          heading: String(item?.heading || ''),
+          explanation: String(item?.explanation || ''),
+        }))
+      : []
+
+    const provisions: JudgmentProvisionRef[] = Array.isArray(row.provisions)
+      ? row.provisions.map((item: any) => ({
+          actName: item?.actName || item?.act_name || undefined,
+          article: item?.article || undefined,
+          section: item?.section || undefined,
+          title: item?.title || undefined,
+          provisionId: item?.provisionId || item?.provision_id || undefined,
+        }))
+      : []
+
+    return {
+      id: row.id,
+      ratio: row.ratio || '',
+      legalPrinciple: row.legal_principle || '',
+      issues: row.issues || [],
+      arguments: row.arguments || [],
+      decision: row.decision || '',
+      importantSections: row.important_sections || [],
+      relatedCases: row.related_cases || [],
+      facts: row.facts || [],
+      holding: row.holding || '',
+      reasoning,
+      provisions,
+      examPoints: row.exam_points || [],
+      bench: row.bench || undefined,
+      judges: row.judges || [],
+      subject: row.subject || undefined,
+      tags: row.tags || [],
+      appellantArgs: row.appellant_args || [],
+      respondentArgs: row.respondent_args || [],
     }
   }
 
