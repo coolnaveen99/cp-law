@@ -35,7 +35,11 @@ export class RemoteContentRepository implements ContentRepository {
       if (query.topic) params.set('topic', query.topic)
       params.set('limit', String(clampLimit(query.limit)))
       params.set('offset', String(Math.max(0, query.offset ?? 0)))
-      return await getJson(`${this.baseUrl}/judgments?${params.toString()}`)
+      const result = await getJson<SearchResult<JudgmentIndexRecord>>(`${this.baseUrl}/judgments?${params.toString()}`)
+      if (result && Array.isArray(result.items)) {
+        return result
+      }
+      return this.fallback.searchJudgments(query)
     } catch {
       return this.fallback.searchJudgments(query)
     }
