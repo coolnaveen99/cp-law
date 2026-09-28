@@ -2,13 +2,13 @@ import type { VercelRequest, VercelResponse } from './_vercel'
 import { isSafeId } from '../src/content/searchUtils'
 import { getServerRepository } from '../src/content/serverRepository'
 
-const repo = getServerRepository()
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'method_not_allowed' })
     return
   }
+
+  const repo = getServerRepository()
 
   try {
     const id = typeof req.query.id === 'string' ? req.query.id : undefined
