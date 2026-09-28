@@ -27,15 +27,41 @@ export interface JudgmentIndexRecord {
   checksum?: string
 }
 
+export interface JudgmentReasoningBlock {
+  heading: string
+  explanation: string
+}
+
+export interface JudgmentProvisionRef {
+  actName?: string
+  article?: string
+  section?: string
+  title?: string
+  provisionId?: string
+}
+
+/** Level-2 brief — loaded only when a judgment is opened. */
 export interface JudgmentAnalysis {
   id: string
   ratio: string
   legalPrinciple: string
   issues: string[]
+  /** Flat list kept for compatibility */
   arguments: string[]
   decision: string
   importantSections: string[]
   relatedCases: string[]
+  facts: string[]
+  holding: string
+  reasoning: JudgmentReasoningBlock[]
+  provisions: JudgmentProvisionRef[]
+  examPoints: string[]
+  bench?: string
+  judges: string[]
+  subject?: string
+  tags: string[]
+  appellantArgs: string[]
+  respondentArgs: string[]
 }
 
 export interface TopicIndexRecord {
