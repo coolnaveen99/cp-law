@@ -155,6 +155,23 @@ type AnalysisRow = {
   decision: string
   important_sections: string[]
   related_cases: string[]
+  facts: string[]
+  holding: string
+  reasoning: { heading: string; explanation: string }[]
+  provisions: {
+    actName?: string
+    article?: string
+    section?: string
+    title?: string
+    provisionId?: string
+  }[]
+  exam_points: string[]
+  bench: string | null
+  judges: string[]
+  subject: string | null
+  tags: string[]
+  appellant_args: string[]
+  respondent_args: string[]
 }
 
 type TopicRow = {
@@ -201,6 +218,30 @@ async function upsert(
   return { table, count: rows.length }
 }
 
+function analysisFromFixture(a: any): AnalysisRow {
+  return {
+    id: a.id,
+    ratio: a.ratio,
+    legal_principle: a.legalPrinciple,
+    issues: a.issues || [],
+    arguments: a.arguments || [],
+    decision: a.decision,
+    important_sections: a.importantSections || [],
+    related_cases: a.relatedCases || [],
+    facts: a.facts || [],
+    holding: a.holding || '',
+    reasoning: a.reasoning || [],
+    provisions: a.provisions || [],
+    exam_points: a.examPoints || [],
+    bench: a.bench || null,
+    judges: a.judges || [],
+    subject: a.subject || null,
+    tags: a.tags || [],
+    appellant_args: a.appellantArgs || [],
+    respondent_args: a.respondentArgs || [],
+  }
+}
+
 async function loadFromFixtures(forcePublish: boolean, includeAnalysis: boolean) {
   const { FIXTURE_JUDGMENTS, FIXTURE_ANALYSIS } = await import('../src/data/fixtures/judgments.ts')
   const { FIXTURE_TOPICS } = await import('../src/data/fixtures/topics.ts')
@@ -226,16 +267,7 @@ async function loadFromFixtures(forcePublish: boolean, includeAnalysis: boolean)
   }))
 
   const analyses: AnalysisRow[] = includeAnalysis
-    ? Object.values(FIXTURE_ANALYSIS).map((a) => ({
-        id: a.id,
-        ratio: a.ratio,
-        legal_principle: a.legalPrinciple,
-        issues: a.issues,
-        arguments: a.arguments,
-        decision: a.decision,
-        important_sections: a.importantSections,
-        related_cases: a.relatedCases,
-      }))
+    ? Object.values(FIXTURE_ANALYSIS).map(analysisFromFixture)
     : []
 
   const topics: TopicRow[] = FIXTURE_TOPICS.map((t) => ({
@@ -311,7 +343,6 @@ async function loadFromCodepackrLaw(
   const analyses: AnalysisRow[] = []
   const topics: TopicRow[] = []
 
-  // 1) Full Judgment objects when import works
   try {
     const indexUrl = pathToFileURL(join(root, 'src/data/judgments/index.ts')).href
     const mod = await import(indexUrl)
@@ -333,7 +364,9 @@ async function loadFromCodepackrLaw(
 
       const year = Number(j.year) || 1970
       const citation = j.citation || j.neutralCitation || `${j.caseName}`
-      const hasAnalysis = Boolean(j.ratioDecidendi || j.holding || j.decision)
+      const hasAnalysis = Boolean(
+        j.ratioDecidendi || j.holding || j.decision || (j.facts && j.facts.length),
+      )
 
       judgments.push({
         id: j.id,
@@ -356,25 +389,44 @@ async function loadFromCodepackrLaw(
       })
 
       if (includeAnalysis && hasAnalysis) {
-        const argBits: string[] = []
-        if (j.arguments?.appellant?.length) {
-          argBits.push(...j.arguments.appellant.map((x: string) => `Appellant: ${x}`))
-        }
-        if (j.arguments?.respondent?.length) {
-          argBits.push(...j.arguments.respondent.map((x: string) => `Respondent: ${x}`))
-        }
+        const appellant = (j.arguments?.appellant || []).map(String)
+        const respondent = (j.arguments?.respondent || []).map(String)
+        const argBits: string[] = [
+          ...appellant.map((x: string) => `Appellant: ${x}`),
+          ...respondent.map((x: string) => `Respondent: ${x}`),
+        ]
 
         analyses.push({
           id: j.id,
-          ratio: String(j.ratioDecidendi || j.holding || j.decision || '').slice(0, 2000),
-          legal_principle: String(j.holding || j.ratioDecidendi || 'See ratio.').slice(0, 500),
+          ratio: String(j.ratioDecidendi || j.holding || j.decision || '').slice(0, 4000),
+          legal_principle: String(j.holding || j.ratioDecidendi || 'See ratio.').slice(0, 1000),
           issues: (j.issues || []).map(String),
           arguments: argBits,
-          decision: String(j.decision || j.holding || '').slice(0, 2000),
+          decision: String(j.decision || j.holding || '').slice(0, 4000),
           important_sections: sections,
           related_cases: (j.relatedCases || [])
             .map((r: any) => r.judgmentId || slugTopic(r.caseName || ''))
             .filter(Boolean),
+          facts: (j.facts || []).map(String),
+          holding: String(j.holding || '').slice(0, 4000),
+          reasoning: (j.reasoning || []).map((r: any) => ({
+            heading: String(r.heading || ''),
+            explanation: String(r.explanation || ''),
+          })),
+          provisions: (j.provisions || []).map((p: any) => ({
+            actName: p.actName,
+            article: p.article,
+            section: p.section,
+            title: p.title,
+            provisionId: p.provisionId,
+          })),
+          exam_points: (j.examPoints || []).map(String),
+          bench: j.bench || null,
+          judges: (j.judges || []).map(String),
+          subject: j.subject || j.jurisdiction || null,
+          tags: (j.tags || []).map(String),
+          appellant_args: appellant,
+          respondent_args: respondent,
         })
       }
     }
@@ -384,7 +436,6 @@ async function loadFromCodepackrLaw(
     )
   }
 
-  // 2) Fallback / supplement: constitution landmark list (Level-1 only)
   const casesPath = join(root, 'src/data/constitution/cases.ts')
   if (existsSync(casesPath)) {
     const text = readFileSync(casesPath, 'utf8')
@@ -392,12 +443,8 @@ async function loadFromCodepackrLaw(
     const existing = new Set(judgments.map((j) => j.id))
     for (const row of parsed) {
       if (limit && judgments.length >= limit) break
-      // Prefer full judgment objects when already present
       if (existing.has(row.id)) continue
-      // Also skip fuzzy duplicates by normalized citation
-      const dup = judgments.some(
-        (j) => j.citation_normalized === row.citation_normalized,
-      )
+      const dup = judgments.some((j) => j.citation_normalized === row.citation_normalized)
       if (dup) continue
       judgments.push(row)
       existing.add(row.id)
@@ -405,20 +452,16 @@ async function loadFromCodepackrLaw(
     console.log(`constitution/cases.ts contributed landmarks (total judgments now ${judgments.length})`)
   }
 
-  // 3) Minimal topic rows derived from judgment topics
   const topicMap = new Map<string, TopicRow>()
   for (const j of judgments) {
     for (const t of j.topics) {
       if (!t) continue
-      const id = t
-      const prev = topicMap.get(id)
+      const prev = topicMap.get(t)
       if (prev) {
-        if (!prev.related_judgment_ids.includes(j.id)) {
-          prev.related_judgment_ids.push(j.id)
-        }
+        if (!prev.related_judgment_ids.includes(j.id)) prev.related_judgment_ids.push(j.id)
       } else {
-        topicMap.set(id, {
-          id,
+        topicMap.set(t, {
+          id: t,
           subject: 'general',
           title: t
             .split('-')
@@ -449,10 +492,7 @@ async function main() {
   let topics: TopicRow[] = []
 
   if (args.from === 'fixtures') {
-    ;({ judgments, analyses, topics } = await loadFromFixtures(
-      args.publish,
-      args.includeAnalysis,
-    ))
+    ;({ judgments, analyses, topics } = await loadFromFixtures(args.publish, args.includeAnalysis))
   } else {
     if (!args.lawPath) {
       throw new Error('--law-path is required when --from codepackr-law')
@@ -475,7 +515,6 @@ async function main() {
     `prepared judgments=${judgments.length} analyses=${analyses.length} topics=${topics.length} dryRun=${args.dryRun}`,
   )
 
-  // Index first (FK target for analysis)
   await upsert(supabaseUrl, serviceKey, 'judgment_index', judgments as any, 'id', args.dryRun)
   if (args.includeAnalysis) {
     await upsert(supabaseUrl, serviceKey, 'judgment_analysis', analyses as any, 'id', args.dryRun)
